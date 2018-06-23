@@ -20,9 +20,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        subtitle = (TextView) findViewById(R.id.text);
+        subtitle = (TextView) findViewById(R.id.textView1);
 
-        subtitle.setText("Asd");
+        subtitle.setText("asd");
 
         context = getApplicationContext();
 
