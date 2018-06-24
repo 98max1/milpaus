@@ -1,61 +1,74 @@
 package com.example.a98max1.milpaus;
 
-import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.speech.RecognizerIntent;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.a98max1.milpaus.modelo.SpeechtoText;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+    private TextView voiceInput;
+    private TextView speakButton;
 
-    private SpeechtoText stt;
-    public static Context context;
-    private boolean primeiraVez = true;
-    public static TextView subtitle;
+    private final int REQ_CODE_SPEECH_INPUT = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        subtitle = (TextView) findViewById(R.id.textView1);
 
-        subtitle.setText("asd");
+        voiceInput = (TextView) findViewById(R.id.textView1);
+        speakButton = (TextView) findViewById(R.id.textView2);
 
-        context = getApplicationContext();
+        speakButton.setOnClickListener(new View.OnClickListener() {
 
-        if (isPrimeiraVez()) {
-            setSTT();
+            @Override
+            public void onClick(View v) {
+                askSpeechInput();
+            }
+        });
+
+    }
+
+    // Showing google speech input dialog
+
+    private void askSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                "Say a product ");
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+
         }
-
-
     }
 
-    public static Context getContext() {
-        return context;
+    // Receiving speech input
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    voiceInput.setText(result.get(0));
+                }
+                break;
+            }
+
+        }
     }
 
-    public boolean isPrimeiraVez() {
-        return primeiraVez;
-    }
-
-    public void setPrimeiraVez(boolean primeiraVez) {
-        this.primeiraVez = primeiraVez;
-    }
-
-    public void setSTT() {
-        stt = new SpeechtoText();
-        setPrimeiraVez(false);
-    }
-
-    public void onClickAdicionarProduto(View view) {
-        Log.i("Text","clicou");
-        stt.backgroundVoiceListener.run();
-    }
-
-    public static void setSubtitle(String txt) {
-        subtitle.setText(txt);
-    }
 }
